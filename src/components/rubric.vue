@@ -2,10 +2,10 @@
   <div id="rubric" class="svgar-canvas" ref="svgar">
     <div 
     class="svgar-content"
-    v-html="svgar.svg"
     @pointerdown="onStart"
     @pointermove="onMove"
-    @pointerup="onEnd">
+    @pointerup="onEnd"
+    id="target">
     </div>
     <h1>rubric</h1>
     <a href="https://github.com/cdriesler/svgar-sketchbook/blob/master/src/components/rubric.vue" target="_blank">source</a>
@@ -36,6 +36,7 @@ export default Vue.extend({
       s: 0,
       svg: '',
       svgar: {} as Svgar.Cube,
+      image: {} as Element,
       boxMap: [] as BoxElement[],
       cameraPosition: 270,
       isMoving: false,
@@ -54,14 +55,16 @@ export default Vue.extend({
 
     this.svgar = svgar;
 
+    const image: Element = document.getElementById('target') as Element;
+    this.image = image;
+
     svgar.initialize().then(() => {
       this.stageScene();
     })
   },
   watch: {
     tick(prevVal: any, val: any): void {
-      this.animate();
-      this.redraw();
+      window.requestAnimationFrame(this.animate)
     }
   },
   methods: {
@@ -85,6 +88,7 @@ export default Vue.extend({
       })
 
       this.svgar.render();
+      this.image.innerHTML = this.svgar.svg;
     },
     animate(): void {
       const speed = 5;
@@ -97,6 +101,7 @@ export default Vue.extend({
         box.scalar.x = dt;
         box.scalar.y = dt;
       })
+      this.redraw()
     },
     stageScene(): void {
       const svgar: Svgar.Cube = this.svgar;
