@@ -1,5 +1,5 @@
 <template>
-  <div id="spindoctor" class="svgar-canvas" ref="svgar">
+  <div id="rubric" class="svgar-canvas" ref="svgar">
     <div 
     class="svgar-content"
     v-html="svgar.svg"
@@ -53,13 +53,37 @@ export default Vue.extend({
       svgar.camera!.position = { x: x, y: y, z: z }
       svgar.camera!.target(0, 0, 0)
 
-      svgar.elements!.add.svgar.box({x: -1, y: -1, z: -1}, {x: 1, y: 1, z: 1}).then((el) => {
-        el.material['fill'] = 'white'
-      })
+      // svgar.elements!.add.svgar.box({x: -1, y: -1, z: -1}, {x: 1, y: 1, z: 1}).then((el) => {
+      //   el.material['fill'] = 'white'
+      // })
+
+      const d = 1.5;
+      const s = 1;
+      const n = 5;
+
+      const dt = n * d;
+      const o = d * 2;
+
+      for (let i = 0; i < n; i++ ) {
+        for (let j = 0; j < n; j++ ) {
+          for (let k = 0; k < n; k++ ) {
+            const x = (i * d) - o;
+            const y = (j * d) - o;
+            const z = (k * d) - o;
+            this.stageBox(x, y, z, s);
+          }
+        }
+      }
 
       svgar.render();
 
-      setInterval(() => {this.refresh()}, 20)
+      // setInterval(() => {this.refresh()}, 15)
+    },
+    stageBox(i: number, j: number, k: number, s: number): void {
+      const d = s / 2;
+
+      this.svgar.elements!.add.svgar.box({ x: i - d, y: j - d, z: k - d }, { x: i + d, y: j + d, z: k + d })
+        .then((el) => el.material['fill'] = 'white');
     },
     rotateCamera(degrees: number): void {
       this.cameraPosition = (this.cameraPosition + degrees) % 360
@@ -67,14 +91,14 @@ export default Vue.extend({
       this.svgar.camera!.pan(degrees * (Math.PI/180))
       const [i, j, k] = this.svgar.camera!.compile();
       this.svgar.camera!.position = { x: k.x * 5, y: k.y * 5, z: k.z * 5 }
-      //this.svgar.render()
+      this.svgar.render()
     },
     getCameraCoordinates(): [number, number, number] {
       const rad = this.cameraPosition * (Math.PI / 180);
       const x = Math.cos(rad);
       const y = Math.sin(rad);
 
-      return [ x * 5, y * 5, 3.5];
+      return [ x * 5, y * 5, 2];
     },
     onStart(event: PointerEvent): void {
       this.isMoving = true;

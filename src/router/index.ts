@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Gallery from '../views/Gallery.vue'
 
-import SpinDoctor from '../components/spindoctor.vue'
+import Rubric from '../components/rubric.vue'
 
 Vue.use(VueRouter)
 
@@ -17,8 +17,8 @@ Vue.use(VueRouter)
     component: Gallery,
     children: [
       {
-        path: 'spindoctor',
-        component: SpinDoctor
+        path: 'rubric',
+        component: Rubric
       }
     ]
   }
