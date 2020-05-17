@@ -60,12 +60,8 @@ export default Vue.extend({
 
     svgar.initialize().then(() => {
       this.stageScene();
-    })
-  },
-  watch: {
-    tick(prevVal: any, val: any): void {
       window.requestAnimationFrame(this.animate)
-    }
+    })
   },
   methods: {
     doTick(): void {
@@ -102,6 +98,7 @@ export default Vue.extend({
         box.scalar.y = dt;
       })
       this.redraw()
+      window.requestAnimationFrame(this.animate)
     },
     stageScene(): void {
       const svgar: Svgar.Cube = this.svgar;
@@ -135,7 +132,7 @@ export default Vue.extend({
 
       this.redraw();
 
-      setInterval(() => {this.doTick()}, 45);
+      // setInterval(() => {this.doTick()}, 45);
 
       // setInterval(() => {this.refresh()}, 15)
     },
