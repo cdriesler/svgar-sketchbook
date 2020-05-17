@@ -32,6 +32,7 @@ interface BoxElement {
 export default Vue.extend({
   data() {
     return {
+      tick: 0,
       s: 0,
       svg: '',
       svgar: {} as Svgar.Cube,
@@ -40,6 +41,7 @@ export default Vue.extend({
       isMoving: false,
       prev: 0,
       x: 0,
+      animationPosition: 270,
     }
   },
   mounted() {
@@ -56,7 +58,15 @@ export default Vue.extend({
       this.stageScene();
     })
   },
+  watch: {
+    tick(prevVal: any, val: any): void {
+      this.animate();
+    }
+  },
   methods: {
+    doTick(): void {
+      this.tick = this.tick + 1;
+    },
     redraw(): void {
       this.svgar.elements!.reset();
 
@@ -75,6 +85,19 @@ export default Vue.extend({
 
       this.svgar.render();
     },
+    animate(): void {
+      const speed = 5;
+      this.animationPosition = (this.animationPosition += speed) % 360;
+      const rad = this.animationPosition * (Math.PI / 180);
+      const t = (Math.sin(rad) + 1) / 2;
+      const max = 2;
+      const dt = 1 + (t * (max - 1));
+      this.boxMap.forEach((box) => {
+        box.scalar.x = dt;
+        box.scalar.y = dt;
+      })
+      this.redraw();
+    },
     stageScene(): void {
       const svgar: Svgar.Cube = this.svgar;
 
@@ -89,10 +112,10 @@ export default Vue.extend({
 
       const d = 1.5;
       const s = 1;
-      const n = 5;
+      const n = 4;
 
       const dt = n * d;
-      const o = d * 2;
+      const o = d * 1.5;
 
       for (let i = 0; i < n; i++ ) {
         for (let j = 0; j < n; j++ ) {
@@ -107,6 +130,8 @@ export default Vue.extend({
 
       this.redraw();
 
+      setInterval(() => {this.doTick()}, 50)
+
       // setInterval(() => {this.refresh()}, 15)
     },
     stageBox(i: number, j: number, k: number, s: number): void {
@@ -119,7 +144,7 @@ export default Vue.extend({
       this.svgar.camera!.pan(degrees * (Math.PI/180))
       const [i, j, k] = this.svgar.camera!.compile();
       this.svgar.camera!.position = { x: k.x * 5, y: k.y * 5, z: k.z * 5 }
-      this.svgar.render()
+      //this.svgar.render()
     },
     getCameraCoordinates(): [number, number, number] {
       const rad = this.cameraPosition * (Math.PI / 180);
