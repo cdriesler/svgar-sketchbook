@@ -61,6 +61,7 @@ export default Vue.extend({
   watch: {
     tick(prevVal: any, val: any): void {
       this.animate();
+      this.redraw();
     }
   },
   methods: {
@@ -80,7 +81,7 @@ export default Vue.extend({
         const z = box.anchor.z * box.scalar.z;
 
         this.svgar.elements!.add.svgar.box({ x: x - d, y: y - d, z: z - d }, {x: x + d, y: y + d, z: z + d})
-          .then((el) => el.material['fill'] = 'white')
+          .then((el) => el.material['fill'] = `rgba(255, 255, 255, ${1 - ((box.scalar.x - 1) / 2)}`)
       })
 
       this.svgar.render();
@@ -96,7 +97,6 @@ export default Vue.extend({
         box.scalar.x = dt;
         box.scalar.y = dt;
       })
-      this.redraw();
     },
     stageScene(): void {
       const svgar: Svgar.Cube = this.svgar;
@@ -130,7 +130,7 @@ export default Vue.extend({
 
       this.redraw();
 
-      setInterval(() => {this.doTick()}, 50)
+      setInterval(() => {this.doTick()}, 45);
 
       // setInterval(() => {this.refresh()}, 15)
     },

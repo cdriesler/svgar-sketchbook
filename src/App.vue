@@ -38,7 +38,6 @@ html * {
 }
 
 .svgar-content {
-  border-radius: 15px;
   background: gainsboro;
 }
 
