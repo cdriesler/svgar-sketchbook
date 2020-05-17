@@ -13,6 +13,10 @@
 html * {
   padding: 0;
   margin: 0;
+
+  touch-action: none;
+
+  --dark: #444444;
 }
 
 #app {
@@ -28,7 +32,14 @@ html * {
   width: 100%;
   max-width: 500px;
   min-height: 500px;
-  background: grey;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.svgar-content {
+  border-radius: 15px;
+  background: gainsboro;
 }
 
 main {

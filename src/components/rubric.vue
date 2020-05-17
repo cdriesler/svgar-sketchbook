@@ -7,6 +7,8 @@
     @pointermove="onMove"
     @pointerup="onEnd">
     </div>
+    <h1>rubric</h1>
+    <a href="https://github.com/cdriesler/svgar-sketchbook/blob/master/src/components/rubric.vue" target="_blank">source</a>
   </div>
 </template>
 
@@ -14,12 +16,26 @@
 import Vue from 'vue'
 import * as Svgar from 'svgar'
 
+interface BoxElement {
+  anchor: {
+    x: number,
+    y: number,
+    z: number
+  }
+  scalar: {
+    x: number,
+    y: number,
+    z: number
+  }
+}
+
 export default Vue.extend({
   data() {
     return {
       s: 0,
       svg: '',
       svgar: {} as Svgar.Cube,
+      boxMap: [] as BoxElement[],
       cameraPosition: 270,
       isMoving: false,
       prev: 0,
@@ -41,9 +57,23 @@ export default Vue.extend({
     })
   },
   methods: {
-    refresh(): void {
+    redraw(): void {
+      this.svgar.elements!.reset();
+
+      // Box size
+      const size = 1;
+      const d = size / 2;
+
+      this.boxMap.forEach((box) => {
+        const x = box.anchor.x * box.scalar.x;
+        const y = box.anchor.y * box.scalar.y;
+        const z = box.anchor.z * box.scalar.z;
+
+        this.svgar.elements!.add.svgar.box({ x: x - d, y: y - d, z: z - d }, {x: x + d, y: y + d, z: z + d})
+          .then((el) => el.material['fill'] = 'white')
+      })
+
       this.svgar.render();
-      console.log(Date.now())
     },
     stageScene(): void {
       const svgar: Svgar.Cube = this.svgar;
@@ -75,15 +105,13 @@ export default Vue.extend({
         }
       }
 
-      svgar.render();
+      this.redraw();
 
       // setInterval(() => {this.refresh()}, 15)
     },
     stageBox(i: number, j: number, k: number, s: number): void {
       const d = s / 2;
-
-      this.svgar.elements!.add.svgar.box({ x: i - d, y: j - d, z: k - d }, { x: i + d, y: j + d, z: k + d })
-        .then((el) => el.material['fill'] = 'white');
+      this.boxMap.push({ anchor: { x: i, y: j, z: k }, scalar: { x: 1, y: 1, z: 1}})
     },
     rotateCamera(degrees: number): void {
       this.cameraPosition = (this.cameraPosition + degrees) % 360
@@ -106,7 +134,7 @@ export default Vue.extend({
       this.x = event.clientX;
     },
     onMove(event: PointerEvent): void {
-      if (Date.now() - this.prev < 25 || !this.isMoving) {
+      if (Date.now() - this.prev < 35 || !this.isMoving) {
         return;
       }
       const speed = 1;
@@ -124,5 +152,17 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+#rubric > :first-child {
+  background: var(--dark);
+}
 
+h1 {
+  color: var(--dark);
+  margin: 15px;
+  font-size: 1.5rem;
+}
+
+a {
+  color: var(--dark);
+}
 </style>

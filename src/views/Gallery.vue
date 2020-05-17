@@ -6,8 +6,6 @@
         Links
       </div>
     </div>
-    <div class="description">
-    </div>
   </div>
 </template>
 
@@ -44,7 +42,6 @@ export default Vue.extend({
   min-height: 500px;
   box-sizing: border-box;
   padding: 15px;
-  background: yellow;
   display: flex;
   flex-direction: column;
   justify-content: center;
