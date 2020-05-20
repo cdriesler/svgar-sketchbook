@@ -98,22 +98,18 @@ class ExtentsEntity implements GameEntity {
   public draw(f: number): void {
     if(!this.isDrawn) {
       const s = this.size / 2;
-      this.universe.scene.elements!.add.svgar.polyline([
+      const material = {
+        'stroke': 'white',
+        'stroke-width': '0.35mm'
+      }
+      this.universe.scene.elements!.add.svgar.lineCurve(
         {x: s, y: s, z: s},
-        {x: s, y: s, z: -s},
-        {x: -s, y: -s, z: -s},
-        {x: -s, y: -s, z: s}
-      ], true)
-        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'; el.material['stroke-width'] = '0.35mm';})
-      this.universe.scene.elements!.add.svgar.polyline([
+        {x: -s, y: -s, z: s},
+      ).then((el) => {el.tags = ['static']; el.material = material});
+      this.universe.scene.elements!.add.svgar.lineCurve(
         {x: -s, y: s, z: s},
-        {x: -s, y: s, z: -s},
-        {x: s, y: -s, z: -s},
-        {x: s, y: -s, z: s}
-      ], true)
-        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'; el.material['stroke-width'] = '0.35mm';})
-      // this.universe.scene.elements!.add.svgar.box({x: -s, y: -s, z: -s}, {x: s, y: s, z: s})
-      //   .then((el) => el.tags = ['static'])
+        {x: s, y: -s, z: s},
+      ).then((el) => {el.tags = ['static']; el.material = material});
       this.isDrawn = true;
     }
   }
@@ -219,9 +215,9 @@ class BubbleEntity implements GameEntity {
     const [i, j, k] = this.universe.scene.camera!.compile()
 
     this.universe.scene.elements!.add.svgar.sphere({
-      x: -k.x + tx, 
-      y: -k.y + ty, 
-      z: -k.z + tz,},
+      x: (-k.x * 5) + tx, 
+      y: (-k.y * 5) + ty, 
+      z: (-k.z * 5) + tz,},
       0.025)
       .then((el) => {el.material = material})
     this.universe.scene.elements!.add.svgar.sphere({
@@ -301,6 +297,7 @@ export default Vue.extend({
         ))
       }
       this.universe.scene.camera!.extents = { w: 11, h: 11 }
+      this.universe.scene.camera!.position = { x: 0, y: 0, z: 5 }
     },
     onStart(event: PointerEvent): void {
       this.isMoving = true;
