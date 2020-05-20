@@ -119,7 +119,7 @@ class BubbleEntity implements GameEntity {
     this.id = newGuid();
 
     this.position = position;
-    this.velocity = {x: 0.1, y: -0.2, z: 0}
+    this.velocity = {x: 0.1, y: -0.2, z: 0.15}
     this.size = radius;
   }
 
@@ -170,6 +170,7 @@ class BubbleEntity implements GameEntity {
       y: p.y + (v.y * f), 
       z: p.z + (v.z * f)},
       this.size)
+      .then((el) => {el.material['fill'] = '#FCFCFC'})
   }
 
 }
@@ -180,7 +181,11 @@ export default Vue.extend({
       svgar: {} as Svgar.Cube,
       prevTick: 0,
       lag: 0,
-      universe: {} as Universe
+      universe: {} as Universe,
+      prevMove: 0,
+      isMoving: false,
+      x: 0,
+      y: 0
     }
   },
   mounted() {
@@ -225,13 +230,33 @@ export default Vue.extend({
       this.universe.scene.camera!.extents = { w: 15, h: 15 }
     },
     onStart(event: PointerEvent): void {
-
+      this.isMoving = true;
+      this.x = event.clientX;
+      this.y = event.clientY;
+      this.prevMove = Date.now();
     },
     onMove(event: PointerEvent): void {
+      const t = Date.now();
+      if (t - this.prevMove < 50 || !this.isMoving) {
+        return;
+      }
 
+      const x = event.clientX;
+      const y = event.clientY;
+      const dx = x - this.x;
+      const dy = y - this.y;
+      this.x = x;
+      this.y = y;
+
+      const speed = 10;
+
+      this.universe.scene.camera!.pan(dx * speed, true);
+      this.universe.scene.camera!.tilt(dy * -speed, true);
+      const [i, j, k] = this.universe.scene.camera!.compile();
+      this.universe.scene.camera!.position = {x: k.x * 10, y: k.y * 10, z: k.z * 10}
     },
     onEnd(event: PointerEvent): void {
-
+      this.isMoving = false;
     }
   }
   
