@@ -184,7 +184,7 @@ class BubbleEntity implements GameEntity {
       y: p.y + (v.y * f), 
       z: p.z + (v.z * f)},
       this.size)
-      .then((el) => {el.material['fill'] = '#FCFCFC'; el.material['stroke'] = 'gainsboro'})
+      .then((el) => {el.material['fill'] = 'white'; el.material['stroke'] = 'none'})
   }
 
 }
@@ -252,7 +252,7 @@ export default Vue.extend({
           (zr + 0.6)
         ))
       }
-      this.universe.scene.camera!.extents = { w: 15, h: 15 }
+      this.universe.scene.camera!.extents = { w: 11, h: 11 }
     },
     onStart(event: PointerEvent): void {
       this.isMoving = true;
@@ -290,7 +290,12 @@ export default Vue.extend({
 
 <style scoped>
 #rubric > :first-child {
-  background: var(--dark);
+  background: #222222;
+  border-radius: 9px;
+}
+
+#rubric > :first-child > :first-child {
+  transform: scale(1.05);
 }
 
 h1 {
