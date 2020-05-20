@@ -97,8 +97,22 @@ class ExtentsEntity implements GameEntity {
   public draw(f: number): void {
     if(!this.isDrawn) {
       const s = this.size / 2;
-      this.universe.scene.elements!.add.svgar.box({x: -s, y: -s, z: -s}, {x: s, y: s, z: s})
-        .then((el) => el.tags = ['static'])
+      this.universe.scene.elements!.add.svgar.polyline([
+        {x: s, y: s, z: s},
+        {x: s, y: s, z: -s},
+        {x: -s, y: -s, z: -s},
+        {x: -s, y: -s, z: s}
+      ], true)
+        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'})
+      this.universe.scene.elements!.add.svgar.polyline([
+        {x: -s, y: s, z: s},
+        {x: -s, y: s, z: -s},
+        {x: s, y: -s, z: -s},
+        {x: s, y: -s, z: s}
+      ], true)
+        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'})
+      // this.universe.scene.elements!.add.svgar.box({x: -s, y: -s, z: -s}, {x: s, y: s, z: s})
+      //   .then((el) => el.tags = ['static'])
       this.isDrawn = true;
     }
   }
@@ -114,12 +128,12 @@ class BubbleEntity implements GameEntity {
   public velocity: Point3d;
   public size: number;
 
-  constructor(universe: Universe, position: Point3d, radius: number) {
+  constructor(universe: Universe, position: Point3d, velocity: Point3d, radius: number) {
     this.universe = universe;
     this.id = newGuid();
 
     this.position = position;
-    this.velocity = {x: 0.1, y: -0.2, z: 0.15}
+    this.velocity = velocity;
     this.size = radius;
   }
 
@@ -170,7 +184,7 @@ class BubbleEntity implements GameEntity {
       y: p.y + (v.y * f), 
       z: p.z + (v.z * f)},
       this.size)
-      .then((el) => {el.material['fill'] = '#FCFCFC'})
+      .then((el) => {el.material['fill'] = '#FCFCFC'; el.material['stroke'] = 'gainsboro'})
   }
 
 }
@@ -226,7 +240,18 @@ export default Vue.extend({
     },
     stage(): void {
       this.universe.entities.push(new ExtentsEntity(this.universe, {x: 0, y: 0, z: 0}, 10))
-      this.universe.entities.push(new BubbleEntity(this.universe, {x: 0, y: 0, z: 0}, 1))
+      for(let i = 0; i < 50; i++) {
+        const xr = Math.random() - 0.5;
+        const yr = Math.random() - 0.5;
+        const zr = Math.random() - 0.5;
+
+        this.universe.entities.push(new BubbleEntity(
+          this.universe,
+          {x: xr * 3, y: yr * 3, z: zr *3},
+          {x: xr * 0.8, y: yr * 0.8, z: zr * 0.8},
+          (zr + 0.6)
+        ))
+      }
       this.universe.scene.camera!.extents = { w: 15, h: 15 }
     },
     onStart(event: PointerEvent): void {
@@ -248,7 +273,7 @@ export default Vue.extend({
       this.x = x;
       this.y = y;
 
-      const speed = 10;
+      const speed = 5;
 
       this.universe.scene.camera!.pan(dx * speed, true);
       this.universe.scene.camera!.tilt(dy * -speed, true);
