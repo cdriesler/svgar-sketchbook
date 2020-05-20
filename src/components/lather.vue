@@ -54,6 +54,7 @@ interface GameEntity {
   position: Point3d;
   velocity: Point3d;
   size: number;
+  id: string;
   update: () => void;
   interact: () => void;
   draw: (f: number) => void;
@@ -103,20 +104,24 @@ class ExtentsEntity implements GameEntity {
         {x: -s, y: -s, z: -s},
         {x: -s, y: -s, z: s}
       ], true)
-        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'})
+        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'; el.material['stroke-width'] = '0.35mm';})
       this.universe.scene.elements!.add.svgar.polyline([
         {x: -s, y: s, z: s},
         {x: -s, y: s, z: -s},
         {x: s, y: -s, z: -s},
         {x: s, y: -s, z: s}
       ], true)
-        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'})
+        .then((el) => {el.tags = ['static']; el.material['stroke'] = 'white'; el.material['stroke-width'] = '0.35mm';})
       // this.universe.scene.elements!.add.svgar.box({x: -s, y: -s, z: -s}, {x: s, y: s, z: s})
       //   .then((el) => el.tags = ['static'])
       this.isDrawn = true;
     }
   }
 
+}
+
+function distance(a: Point3d, b: Point3d): number {
+  return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2) + Math.pow((b.z - a.z), 2))
 }
 
 class BubbleEntity implements GameEntity {
@@ -127,6 +132,7 @@ class BubbleEntity implements GameEntity {
   public position: Point3d;
   public velocity: Point3d;
   public size: number;
+  private isColliding = false;
 
   constructor(universe: Universe, position: Point3d, velocity: Point3d, radius: number) {
     this.universe = universe;
@@ -173,18 +179,60 @@ class BubbleEntity implements GameEntity {
     if (dz < min) {
       this.velocity.z = this.velocity.z * -1
     }
+
+    this.isColliding = false;
+
+    this.universe.entities.forEach((e) => {
+      if (this.isColliding) {
+        return;
+      }
+
+      if (e.type === 'bubble' && e.id !== this.id) {
+        const min = this.size + e.size;
+        const dist = distance(this.position, e.position);
+        this.isColliding = dist < min;
+      }
+    })
+
   }
 
   public draw(f: number): void {
     const p = this.position;
     const v = this.velocity;
 
+    const tx = p.x + (v.x * f)
+    const ty = p.y + (v.y * f)
+    const tz = p.z + (v.z * f)
+
+    const material = {
+      'fill': `${this.isColliding ? '#444444' : '#222222'}`,
+      'stroke': 'white',
+      'stroke-width': '0.7mm'
+    }
+
+    const lineMaterial = {
+      'fill': 'none',
+      'stroke': 'white',
+      'stroke-width': '0.2mm'
+    }
+
+    const [i, j, k] = this.universe.scene.camera!.compile()
+
     this.universe.scene.elements!.add.svgar.sphere({
-      x: p.x + (v.x * f), 
-      y: p.y + (v.y * f), 
-      z: p.z + (v.z * f)},
+      x: -k.x + tx, 
+      y: -k.y + ty, 
+      z: -k.z + tz,},
+      0.025)
+      .then((el) => {el.material = material})
+    this.universe.scene.elements!.add.svgar.sphere({
+      x: tx, 
+      y: ty, 
+      z: tz},
       this.size)
-      .then((el) => {el.material['fill'] = 'white'; el.material['stroke'] = 'none'})
+      .then((el) => {el.material = material})
+    
+    //this.universe.scene.elements!.add.svgar.lineCurve({x: tx, y: ty, z: tz - this.size}, {x: tx, y: ty, z: -5}).then((el) => el.material = lineMaterial)
+    this.universe.scene.elements!.add.svgar.lineCurve({x: tx, y: ty, z: tz + this.size}, {x: tx, y: ty, z: 5}).then((el) => el.material = lineMaterial)
   }
 
 }
@@ -240,7 +288,7 @@ export default Vue.extend({
     },
     stage(): void {
       this.universe.entities.push(new ExtentsEntity(this.universe, {x: 0, y: 0, z: 0}, 10))
-      for(let i = 0; i < 50; i++) {
+      for(let i = 0; i < 10; i++) {
         const xr = Math.random() - 0.5;
         const yr = Math.random() - 0.5;
         const zr = Math.random() - 0.5;
@@ -249,7 +297,7 @@ export default Vue.extend({
           this.universe,
           {x: xr * 3, y: yr * 3, z: zr *3},
           {x: xr * 0.8, y: yr * 0.8, z: zr * 0.8},
-          (zr + 0.6)
+          (zr + 0.8)
         ))
       }
       this.universe.scene.camera!.extents = { w: 11, h: 11 }
@@ -291,7 +339,7 @@ export default Vue.extend({
 <style scoped>
 #rubric > :first-child {
   background: #222222;
-  border-radius: 9px;
+  overflow: hidden;
 }
 
 #rubric > :first-child > :first-child {
