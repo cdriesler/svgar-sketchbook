@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import Gallery from '../views/Gallery.vue'
 
 import Rubric from '../components/rubric.vue'
+import Lather from '../components/lather.vue'
 
 Vue.use(VueRouter)
 
@@ -17,9 +18,13 @@ Vue.use(VueRouter)
     component: Gallery,
     children: [
       {
+        path: 'lather',
+        component: Lather
+      },
+      {
         path: 'rubric',
         component: Rubric
-      }
+      },
     ]
   }
 ]
