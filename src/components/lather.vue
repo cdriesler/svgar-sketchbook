@@ -273,7 +273,7 @@ export default Vue.extend({
       this.x = x;
       this.y = y;
 
-      const speed = 5;
+      const speed = 2;
 
       this.universe.scene.camera!.pan(dx * speed, true);
       this.universe.scene.camera!.tilt(dy * -speed, true);
