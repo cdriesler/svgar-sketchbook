@@ -1,5 +1,5 @@
 <template>
-  <div id="rubric" class="svgar-canvas" ref="svgar">
+  <div id="lather" class="svgar-canvas" ref="svgar">
     <div 
     class="svgar-content"
     @pointerdown="onStart"
