@@ -60,6 +60,69 @@ interface GameEntity {
   draw: (f: number) => void;
 }
 
+function newGuid() {
+    return 'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0,
+        v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+    });
+}
+
+class PointEntity implements GameEntity {
+
+  private universe: Universe;
+  public type = 'Point'
+  public readonly id: string;
+  public position: Point3d;
+  public velocity: Point3d = {x: 0, y: 0, z: 0}
+  public size = 0;
+  public u: number;
+  public v: number;
+
+  constructor(universe: Universe, position: Point3d, u: number, v: number) {
+    this.universe = universe;
+    this.position = position;
+    this.u = u;
+    this.v = v;
+    this.id = newGuid()
+  }
+
+  public update(): void {
+
+  }
+
+  public interact(): void {
+
+  }
+
+  public draw(f: number): void {
+    const p = this.position;
+    this.universe.scene.elements!.add.svgar.sphere({x: p.x, y: p.y, z: p.z}, 0.05)
+    if (this.v !== 4) {
+      const next = this.universe.entities.find((e) => {
+        if (e.type !== 'Point') {
+          return
+        }
+        const pt = e as PointEntity
+
+        return pt.u === this.u && pt.v === this.v + 1
+      })
+
+      if (!next) {
+        return
+      }
+
+      const n = next.position;
+
+      this.universe.scene.elements!.add.svgar.lineCurve(
+        {x: p.x, y: p.y, z: p.z},
+        {x: n.x, y: n.y, z: n.z}
+      )
+    }
+  }
+
+}
+
 export default Vue.extend({
   data() {
     return {
@@ -108,7 +171,34 @@ export default Vue.extend({
       window.requestAnimationFrame(this.loop)
     },
     stage(): void {
-      
+      const uDivisions = 16
+      const uDomain = { start: 0, end: 360 }
+      const uStep = (uDomain.end - uDomain.start) / uDivisions
+      const vDisivions = 4
+      const vDomain = { start: 70, end: 110 }
+      const vStep = (vDomain.end - vDomain.start) / vDisivions
+
+      const r = 4
+
+      for (let i = 0; i < uDivisions; i++) {
+        // row iterator
+        const azimuth = ((i * uStep) + uDomain.start) * (Math.PI / 180)
+
+        for (let j = 0; j < vDisivions + 1; j++) {
+          // column iterator
+          const polar = ((j * vStep) + vDomain.start) * (Math.PI / 180)
+
+          const x = r * Math.cos(azimuth) * Math.sin(polar)
+          const y = r * Math.sin(azimuth) * Math.sin(polar)
+          const z = r * Math.cos(polar)
+
+          this.universe.entities.push(new PointEntity(this.universe, {x: x, y: y, z: z}, i, j))
+        }
+
+      }
+
+      this.universe.scene.camera!.tilt(45, true)
+      this.universe.scene.camera!.pan(-45, true)
     },
     onStart(event: PointerEvent): void {
 
@@ -125,7 +215,7 @@ export default Vue.extend({
 
 <style scoped>
 #rubric > :first-child {
-  background: #222222;
+  background: gainsboro;
   overflow: hidden;
 }
 

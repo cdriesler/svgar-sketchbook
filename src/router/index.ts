@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Gallery from '../views/Gallery.vue'
 
+import Armlet from '../components/armlet.vue'
 import Rubric from '../components/rubric.vue'
 import Lather from '../components/lather.vue'
 
@@ -17,6 +18,10 @@ Vue.use(VueRouter)
     name: 'Gallery',
     component: Gallery,
     children: [
+      {
+        path: 'armlet',
+        component: Armlet,
+      },
       {
         path: 'lather',
         component: Lather
