@@ -20,6 +20,7 @@ class Universe {
 
   public entities: GameEntity[] = [];
   public scene: Svgar.Cube;
+  private speed = 1.5;
 
   constructor() {
     this.scene = new Svgar.Cube();
@@ -68,6 +69,10 @@ function newGuid() {
     });
 }
 
+function distance(a: Point3d, b: Point3d): number {
+  return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2) + Math.pow((b.z - a.z), 2))
+}
+
 class PointEntity implements GameEntity {
 
   private universe: Universe;
@@ -97,7 +102,12 @@ class PointEntity implements GameEntity {
 
   public draw(f: number): void {
     const p = this.position;
-    this.universe.scene.elements!.add.svgar.sphere({x: p.x, y: p.y, z: p.z}, 0.05)
+    const c = this.universe.scene.camera!.position;
+    const dist = distance(p, c);
+    const opacity = (dist - 5) / 9;
+    this.universe.scene.elements!.add.svgar.sphere({x: p.x, y: p.y, z: p.z}, 0.05).then((el) => {
+      el.material['opacity'] = opacity.toString()
+    })
     if (this.v !== 4) {
       const next = this.universe.entities.find((e) => {
         if (e.type !== 'Point') {
@@ -117,7 +127,9 @@ class PointEntity implements GameEntity {
       this.universe.scene.elements!.add.svgar.lineCurve(
         {x: p.x, y: p.y, z: p.z},
         {x: n.x, y: n.y, z: n.z}
-      )
+      ).then((el) => {
+      el.material['opacity'] = opacity.toString()
+    })
     }
   }
 
@@ -197,17 +209,39 @@ export default Vue.extend({
 
       }
 
-      this.universe.scene.camera!.tilt(45, true)
-      this.universe.scene.camera!.pan(-45, true)
+      this.universe.scene.camera!.tilt(90, true)
+      this.universe.scene.camera!.rotate(90, true)
+      const [i, j, k] = this.universe.scene.camera!.compile();
+      this.universe.scene.camera!.position = {x: k.x * 10, y: k.y * 10, z: k.z * 10}
     },
     onStart(event: PointerEvent): void {
-
+      this.isMoving = true;
+      this.x = event.clientX;
+      this.y = event.clientY;
+      this.prevMove = Date.now();
     },
     onMove(event: PointerEvent): void {
+      const t = Date.now();
+      if (t - this.prevMove < 50 || !this.isMoving) {
+        return;
+      }
 
+      const x = event.clientX;
+      const y = event.clientY;
+      const dx = x - this.x;
+      const dy = y - this.y;
+      this.x = x;
+      this.y = y;
+
+      const speed = 2;
+
+      this.universe.scene.camera!.pan(dx * speed, true);
+      this.universe.scene.camera!.tilt(dy * -speed, true);
+      const [i, j, k] = this.universe.scene.camera!.compile();
+      this.universe.scene.camera!.position = {x: k.x * 10, y: k.y * 10, z: k.z * 10}
     },
     onEnd(event: PointerEvent): void {
-
+      this.isMoving = false;
     }
   }
 })
