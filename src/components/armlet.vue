@@ -248,12 +248,12 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-#rubric > :first-child {
+#armlet > :first-child {
   background: gainsboro;
   overflow: hidden;
 }
 
-#rubric > :first-child > :first-child {
+#armlet > :first-child > :first-child {
   transform: scale(1.05);
 }
 

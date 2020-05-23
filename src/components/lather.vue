@@ -334,12 +334,12 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-#rubric > :first-child {
+#lather > :first-child {
   background: #222222;
   overflow: hidden;
 }
 
-#rubric > :first-child > :first-child {
+#lather > :first-child > :first-child {
   transform: scale(1.05);
 }
 
