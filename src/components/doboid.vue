@@ -1,5 +1,5 @@
 <template>
-    <div id="__template__" class="svgar-canvas" ref="svgar">
+    <div id="doboid" class="svgar-canvas" ref="svgar">
     <div 
     class="svgar-content"
     @pointerdown="onStart"
@@ -7,8 +7,8 @@
     @pointerup="onEnd"
     id="target">
     </div>
-    <h1>__template__</h1>
-    <a href="https://github.com/cdriesler/svgar-sketchbook/blob/master/src/components/__template__.vue" target="_blank">source</a>
+    <h1>doboid</h1>
+    <a href="https://github.com/cdriesler/svgar-sketchbook/blob/master/src/components/doboid.vue" target="_blank">source</a>
   </div>
 </template>
 
@@ -52,7 +52,7 @@ interface Point3d {
 interface GameEntity {
   type: string;
   position: Point3d;
-  velocity: Point3d;
+  orientation: number
   size: number;
   id: string;
   update: () => void;
@@ -70,6 +70,37 @@ function newGuid() {
 
 function distance(a: Point3d, b: Point3d): number {
   return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2) + Math.pow((b.z - a.z), 2))
+}
+
+class BoidEntity implements GameEntity {
+
+  private universe: Universe;
+  public type = 'boid'
+  public position: Point3d;
+  public orientation: number;
+  public size: number;
+  public id: string;
+
+  constructor(universe: Universe, position: Point3d, orientation: number, size: number) {
+    this.universe = universe;
+    this.position = position;
+    this.orientation = orientation;
+    this.size = size;
+
+    this.id = newGuid();
+  }
+
+  public update(): void {
+
+  }
+
+  public interact(): void {
+
+  }
+
+  public draw(f: number): void {
+
+  }
 }
 
 export default Vue.extend({
